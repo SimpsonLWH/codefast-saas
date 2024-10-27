@@ -13,21 +13,28 @@ const options = {
 	},
 };
 
+// Global variable to cache the MongoDB client promise
 let client;
 let clientPromise;
 
+// Check for serverless environment and cache connection
 if (process.env.NODE_ENV === "development") {
-	let globalWithMongo = global;
-	globalWithMongo._mongoClientPromise = undefined;
-
-	if (!globalWithMongo._mongoClientPromise) {
+	// Create a global object to hold the MongoDB client promise in development
+	if (!global._mongoClientPromise) {
 		client = new MongoClient(uri, options);
-		globalWithMongo._mongoClientPromise = client.connect();
+		global._mongoClientPromise = client.connect().catch((err) => {
+			console.error("❌ MongoDB connection error:", err);
+			throw err;
+		});
 	}
-	clientPromise = globalWithMongo._mongoClientPromise;
+	clientPromise = global._mongoClientPromise;
 } else {
+	// No global caching in production to avoid memory leaks
 	client = new MongoClient(uri, options);
-	clientPromise = client.connect();
+	clientPromise = client.connect().catch((err) => {
+		console.error("❌ MongoDB connection error:", err);
+		throw err;
+	});
 }
 
 export default clientPromise;

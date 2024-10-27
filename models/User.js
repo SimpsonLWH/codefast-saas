@@ -1,34 +1,58 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-	name: {
-		type: String,
-		trim: true,
+	creatorId: { 
+		type: Number, 
+		unique: true 
 	},
-	email: {
-		type: String,
-		trim: true,
-		lowercase: true,
+	username: { 
+		type: String, 
+		unique: true, 
+		required: true, 
+		index: true 
 	},
-	image: {
-		type: String,
+	forename: { 
+		type: String, 
+		required: true,
+		trim: true 
 	},
-
-	hasAccess: {
-		type: Boolean,
-		default: false,
+	surname: { 
+		type: String, 
+		required: true,
+		trim: true
 	},
-
-	customerId: {
-		type: String,
+	email: { 
+		type: String, 
+		required: true, 
+		unique: true, 
+		trim: true, 
+		lowercase: true 
 	},
-
-	boards: [
-		{
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "Board",
-		},
-	],
+	password: { 
+		type: String, 
+		required: true 
+	}, 
+	emailVerified: { 
+		type: Boolean, 
+		default: false 
+	}, 
+	friends: [{ 
+		type: mongoose.Schema.Types.ObjectId, 
+		ref: "User" 
+	}],
+	eventsCreated: [{ 
+		type: mongoose.Schema.Types.ObjectId, 
+		ref: "Event" 
+	}],
+	eventsAttended: [{ 
+		type: mongoose.Schema.Types.ObjectId, 
+		ref: "Event" 
+	}],
+	planPrivacy: { 
+		type: String, 
+		enum: ["friends-only", "private"], 
+		default: "friends-only" 
+	},
 });
 
 export default mongoose.models.User || mongoose.model("User", userSchema);
